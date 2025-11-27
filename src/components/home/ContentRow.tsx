@@ -97,7 +97,7 @@ export default function ContentRow({ title, movies, isLoading, error }: ContentR
                 <div
                     ref={rowRef}
                     onScroll={handleScroll}
-                    className="flex gap-2 md:gap-3 overflow-x-auto overflow-y-visible scrollbar-hide scroll-smooth py-12 px-4"
+                    className="flex gap-2 md:gap-3 overflow-x-auto overflow-y-visible scrollbar-hide scroll-smooth py-6 px-4"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                     {movies.map((movie) => (

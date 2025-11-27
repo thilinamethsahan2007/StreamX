@@ -72,7 +72,7 @@ export default function Top10Row({ title, movies }: Top10RowProps) {
                 <div
                     ref={rowRef}
                     onScroll={handleScroll}
-                    className="flex gap-2 md:gap-3 overflow-x-auto overflow-y-visible scrollbar-hide scroll-smooth py-12 px-4"
+                    className="flex gap-2 md:gap-3 overflow-x-auto overflow-y-visible scrollbar-hide scroll-smooth py-6 px-4"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                     {top10Movies.map((movie, index) => (

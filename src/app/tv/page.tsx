@@ -18,7 +18,7 @@ export default function TvShowsPage() {
             <Navbar />
             <HeroBanner />
 
-            <div className="relative z-10 space-y-4 md:space-y-8 pb-12 md:pb-20 -mt-32">
+            <div className="relative z-10 space-y-2 md:space-y-4 pb-12 md:pb-20 -mt-32">
                 <Top10Row title="Top 10 TV Shows Today" movies={trending as any || []} />
                 <ContentRow title="Trending TV Shows" movies={trending as any || []} isLoading={trendingLoading} error={trendingError as Error} />
                 <ContentRow title="Popular on StreamX" movies={popular as any || []} isLoading={popularLoading} error={popularError as Error} />

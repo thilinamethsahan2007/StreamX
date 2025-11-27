@@ -76,6 +76,32 @@ export default function CustomPlayer({ tmdbId, season, episode, fallbackUrl }: C
         }
     };
 
+    // Popup blocker - blocks popups from iframe
+    useEffect(() => {
+        // Override window.open to block popups
+        const originalWindowOpen = window.open;
+        window.open = function (...args) {
+            console.log('Blocked popup attempt:', args);
+            return null;
+        };
+
+        // Block popup events
+        const blockPopup = (e: Event) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Blocked popup event');
+        };
+
+        window.addEventListener('beforeunload', blockPopup);
+        window.addEventListener('open', blockPopup);
+
+        return () => {
+            window.open = originalWindowOpen;
+            window.removeEventListener('beforeunload', blockPopup);
+            window.removeEventListener('open', blockPopup);
+        };
+    }, []);
+
     if (error || !streamUrl) {
         // Fallback to iframe if extraction fails
         return (
@@ -85,6 +111,7 @@ export default function CustomPlayer({ tmdbId, season, episode, fallbackUrl }: C
                     className="h-full w-full border-none"
                     allowFullScreen
                     allow="autoplay; encrypted-media"
+                    sandbox="allow-same-origin allow-scripts allow-forms"
                     title="Video Player"
                 />
             </div>

@@ -56,10 +56,11 @@ export default function Top10Row({ title, movies }: Top10RowProps) {
                     {showLeftArrow && (
                         <motion.button
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
+                            animate={{ opacity: 0 }}
+                            whileHover={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => scroll('left')}
-                            className="absolute left-0 top-0 bottom-0 z-20 w-12 md:w-16 bg-black/60 hover:bg-black/80 text-white opacity-0 group-hover/row:opacity-100 transition-opacity flex items-center justify-center"
+                            className="absolute left-0 top-0 bottom-0 z-20 w-12 md:w-16 bg-black/70 hover:bg-black/90 text-white opacity-0 group-hover/row:opacity-100 transition-opacity flex items-center justify-center rounded-r"
                             aria-label="Scroll left"
                         >
                             <ChevronLeft className="h-8 w-8 md:h-12 md:w-12" />
@@ -89,10 +90,11 @@ export default function Top10Row({ title, movies }: Top10RowProps) {
                     {showRightArrow && (
                         <motion.button
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
+                            animate={{ opacity: 0 }}
+                            whileHover={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => scroll('right')}
-                            className="absolute right-0 top-0 bottom-0 z-20 w-12 md:w-16 bg-black/60 hover:bg-black/80 text-white opacity-0 group-hover/row:opacity-100 transition-opacity flex items-center justify-center"
+                            className="absolute right-0 top-0 bottom-0 z-20 w-12 md:w-16 bg-black/70 hover:bg-black/90 text-white opacity-0 group-hover/row:opacity-100 transition-opacity flex items-center justify-center rounded-l"
                             aria-label="Scroll right"
                         >
                             <ChevronRight className="h-8 w-8 md:h-12 md:w-12" />

@@ -24,71 +24,78 @@ export default function MovieCard({ movie }: MovieCardProps) {
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
             whileHover={{
-                scale: 1.05,
-                zIndex: 10,
-                transition: { duration: 0.2 }
+                scale: 1.3,
+                zIndex: 50,
+                transition: { duration: 0.3, delay: 0.3 }
             }}
-            className="relative h-[300px] min-w-[200px] cursor-pointer group focus:outline-none focus:ring-2 focus:ring-[#e50914] rounded-md"
+            className="relative aspect-[2/3] cursor-pointer group rounded-md overflow-hidden"
             onClick={() => openModal(movie)}
             onKeyDown={(e) => e.key === 'Enter' && openModal(movie)}
             tabIndex={0}
             role="button"
             aria-label={`View details for ${title}`}
         >
+            {/* Movie Poster */}
             {!imageError ? (
                 <img
                     src={posterUrl}
                     alt={title}
                     onError={() => setImageError(true)}
-                    className="h-full w-full rounded-md object-cover transition-all duration-300 group-hover:brightness-50"
+                    className="h-full w-full object-cover"
                 />
             ) : (
-                <div className="h-full w-full rounded-md bg-gray-800 flex items-center justify-center">
-                    <span className="text-gray-500 text-sm text-center px-4">{title}</span>
+                <div className="h-full w-full bg-gray-800 flex items-center justify-center">
+                    <span className="text-gray-500 text-xs text-center px-2">{title}</span>
                 </div>
             )}
 
-            {/* Overlay with info and play/coming soon button */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md flex flex-col justify-between p-4">
-                {/* Play/Coming Soon button - top center */}
-                <div className="flex justify-center">
+            {/* Gradient Overlay - Always visible on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+            {/* Content - Shows on hover */}
+            <div className="absolute inset-0 flex flex-col justify-end p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {/* Play Button */}
+                <div className="flex items-center gap-2 mb-2">
                     {isContentReleased(releaseDate) ? (
-                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 transform translate-y-[-20px] group-hover:translate-y-0 transition-transform duration-300">
-                            <Play className="h-6 w-6 fill-white text-white" />
-                        </div>
+                        <button className="bg-white rounded-full p-2 hover:bg-gray-200 transition">
+                            <Play className="h-4 w-4 fill-black text-black" />
+                        </button>
                     ) : (
-                        <div className="bg-gray-600/40 backdrop-blur-sm rounded-full p-3 transform translate-y-[-20px] group-hover:translate-y-0 transition-transform duration-300">
-                            <Clock className="h-6 w-6 text-white" />
-                        </div>
+                        <button className="bg-gray-600/80 rounded-full p-2">
+                            <Clock className="h-4 w-4 text-white" />
+                        </button>
                     )}
                 </div>
 
-                {/* Info - bottom */}
-                <div>
-                    <h3 className="text-white font-bold text-sm line-clamp-2 mb-2">
-                        {title}
-                    </h3>
-                    <div className="flex items-center gap-2 text-xs text-gray-300">
-                        {movie.vote_average && movie.vote_average > 0 && (
-                            <div className="flex items-center gap-1">
-                                <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                                <span>{movie.vote_average.toFixed(1)}</span>
-                            </div>
-                        )}
-                        {releaseDate && (
-                            <span>{releaseDate.split('-')[0]}</span>
-                        )}
-                        {isTV && (
-                            <span className="text-xs bg-red-600 px-1.5 py-0.5 rounded">TV</span>
-                        )}
-                        {!isContentReleased(releaseDate) && (
-                            <span className="text-xs bg-orange-600 px-1.5 py-0.5 rounded">Coming Soon</span>
-                        )}
-                    </div>
+                {/* Title and Info */}
+                <h3 className="text-white font-bold text-sm line-clamp-1 mb-1">
+                    {title}
+                </h3>
+
+                <div className="flex items-center gap-2 text-xs text-white">
+                    {movie.vote_average && movie.vote_average > 0 && (
+                        <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-green-500 text-green-500" />
+                            <span className="text-green-500 font-semibold">{Math.round(movie.vote_average * 10)}% Match</span>
+                        </div>
+                    )}
+                    {releaseDate && (
+                        <span className="text-gray-300">{releaseDate.split('-')[0]}</span>
+                    )}
+                </div>
+
+                {/* Badges */}
+                <div className="flex items-center gap-1 mt-1">
+                    {isTV && (
+                        <span className="text-xs border border-gray-400 px-1 text-gray-300">TV</span>
+                    )}
+                    {!isContentReleased(releaseDate) && (
+                        <span className="text-xs bg-orange-600 px-1.5 py-0.5 rounded">Coming Soon</span>
+                    )}
                 </div>
             </div>
         </motion.div>

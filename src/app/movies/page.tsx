@@ -2,30 +2,30 @@
 
 import Navbar from '@/components/layout/Navbar';
 import MovieModal from '@/components/modal/MovieModal';
-import MovieRow from '@/components/home/MovieRow';
+import ContentRow from '@/components/home/ContentRow';
+import Top10Row from '@/components/home/Top10Row';
+import HeroBanner from '@/components/home/HeroBanner';
 import { useActionMovies, useComedyMovies, usePopularMovies, useTopRatedMovies, useTrendingMovies } from '@/hooks/useMovies';
 
 export default function MoviesPage() {
-    const { data: trending } = useTrendingMovies();
-    const { data: popular } = usePopularMovies();
-    const { data: topRated } = useTopRatedMovies();
-    const { data: action } = useActionMovies();
-    const { data: comedy } = useComedyMovies();
+    const { data: trending, isLoading: trendingLoading, error: trendingError } = useTrendingMovies();
+    const { data: popular, isLoading: popularLoading, error: popularError } = usePopularMovies();
+    const { data: topRated, isLoading: topRatedLoading, error: topRatedError } = useTopRatedMovies();
+    const { data: action, isLoading: actionLoading, error: actionError } = useActionMovies();
+    const { data: comedy, isLoading: comedyLoading, error: comedyError } = useComedyMovies();
 
     return (
-        <main className="relative min-h-screen bg-[#141414] pb-20">
+        <main className="relative min-h-screen bg-[#141414]">
             <Navbar />
+            <HeroBanner />
 
-            <div className="pt-20 px-4 md:px-16">
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-8">Movies</h1>
-
-                <div className="space-y-8">
-                    <MovieRow title="Trending Now" movies={trending || []} />
-                    <MovieRow title="Popular Movies" movies={popular || []} />
-                    <MovieRow title="Top Rated" movies={topRated || []} />
-                    <MovieRow title="Action Thrillers" movies={action || []} />
-                    <MovieRow title="Comedies" movies={comedy || []} />
-                </div>
+            <div className="relative z-10 space-y-4 md:space-y-8 pb-12 md:pb-20 -mt-32">
+                <Top10Row title="Top 10 Movies Today" movies={trending || []} />
+                <ContentRow title="Trending Now" movies={trending || []} isLoading={trendingLoading} error={trendingError as Error} />
+                <ContentRow title="Popular Movies" movies={popular || []} isLoading={popularLoading} error={popularError as Error} />
+                <ContentRow title="Top Rated" movies={topRated || []} isLoading={topRatedLoading} error={topRatedError as Error} />
+                <ContentRow title="Action Thrillers" movies={action || []} isLoading={actionLoading} error={actionError as Error} />
+                <ContentRow title="Comedies" movies={comedy || []} isLoading={comedyLoading} error={comedyError as Error} />
             </div>
 
             <MovieModal />

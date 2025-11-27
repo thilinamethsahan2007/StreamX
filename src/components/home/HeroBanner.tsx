@@ -21,10 +21,10 @@ export default function HeroBanner() {
         }
     }, [movies]);
 
-    if (!movie) return <div className="h-[60vh] sm:h-[70vh] md:h-[80vh] w-full bg-[#141414] animate-pulse" />;
+    if (!movie) return <div className="h-[95vh] w-full bg-[#141414] animate-pulse" />;
 
     return (
-        <div className="relative h-[60vh] sm:h-[70vh] md:h-[85vh] w-full">
+        <div className="relative h-[75vh] sm:h-[85vh] md:h-[95vh] w-full">
             <div className="absolute inset-0">
                 <img
                     src={getImageUrl(movie.backdrop_path, 'original')}
@@ -32,12 +32,13 @@ export default function HeroBanner() {
                     className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#141414] via-[#141414]/40 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent" />
             </div>
 
-            <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/60 to-transparent" />
+            {/* Stronger bottom gradient to prevent text overlap */}
+            <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#141414] to-transparent z-10" />
 
-            <div className="relative z-10 flex h-full items-end px-4 md:px-16 pb-12 sm:pb-16 md:pb-24">
+            <div className="relative z-20 flex h-full items-end px-4 md:px-16 pb-12 sm:pb-16 md:pb-32">
                 <div className="max-w-2xl space-y-3 md:space-y-6">
                     <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-shadow">
                         {movie?.title}

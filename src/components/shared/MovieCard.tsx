@@ -1,10 +1,10 @@
 'use client';
 
-import { getImageUrl } from '@/lib/utils';
+import { getImageUrl, isContentReleased } from '@/lib/utils';
 import { useModalStore } from '@/store/modalStore';
 import { Movie } from 'tmdb-ts';
 import { motion } from 'framer-motion';
-import { Star, Play } from 'lucide-react';
+import { Star, Play, Clock } from 'lucide-react';
 import { useState } from 'react';
 
 interface MovieCardProps {
@@ -52,13 +52,19 @@ export default function MovieCard({ movie }: MovieCardProps) {
                 </div>
             )}
 
-            {/* Overlay with info and play button */}
+            {/* Overlay with info and play/coming soon button */}
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md flex flex-col justify-between p-4">
-                {/* Play button - top center */}
+                {/* Play/Coming Soon button - top center */}
                 <div className="flex justify-center">
-                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 transform translate-y-[-20px] group-hover:translate-y-0 transition-transform duration-300">
-                        <Play className="h-6 w-6 fill-white text-white" />
-                    </div>
+                    {isContentReleased(releaseDate) ? (
+                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 transform translate-y-[-20px] group-hover:translate-y-0 transition-transform duration-300">
+                            <Play className="h-6 w-6 fill-white text-white" />
+                        </div>
+                    ) : (
+                        <div className="bg-gray-600/40 backdrop-blur-sm rounded-full p-3 transform translate-y-[-20px] group-hover:translate-y-0 transition-transform duration-300">
+                            <Clock className="h-6 w-6 text-white" />
+                        </div>
+                    )}
                 </div>
 
                 {/* Info - bottom */}
@@ -78,6 +84,9 @@ export default function MovieCard({ movie }: MovieCardProps) {
                         )}
                         {isTV && (
                             <span className="text-xs bg-red-600 px-1.5 py-0.5 rounded">TV</span>
+                        )}
+                        {!isContentReleased(releaseDate) && (
+                            <span className="text-xs bg-orange-600 px-1.5 py-0.5 rounded">Coming Soon</span>
                         )}
                     </div>
                 </div>

@@ -2,9 +2,9 @@
 
 import { useMovieDetails } from '@/hooks/useMovies';
 import { useTvShowDetails, useTvShowSeason } from '@/hooks/useTvShowDetails';
-import { getImageUrl } from '@/lib/utils';
+import { getImageUrl, isContentReleased } from '@/lib/utils';
 import { useModalStore } from '@/store/modalStore';
-import { X, Play } from 'lucide-react';
+import { X, Play, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -74,12 +74,21 @@ export default function MovieModal() {
                             <div className="absolute bottom-4 left-4 sm:bottom-8 sm:left-8 md:bottom-10 md:left-10">
                                 <h2 className="mb-2 sm:mb-4 text-2xl sm:text-3xl md:text-4xl font-bold text-shadow">{title}</h2>
                                 {!isTV && (
-                                    <button
-                                        onClick={() => handlePlay()}
-                                        className="flex items-center gap-2 rounded bg-white px-4 sm:px-6 md:px-8 py-1.5 sm:py-2 text-sm sm:text-base font-bold text-black hover:bg-opacity-90"
-                                    >
-                                        <Play className="h-4 w-4 sm:h-5 sm:w-5 fill-black" /> Play
-                                    </button>
+                                    isContentReleased(releaseDate) ? (
+                                        <button
+                                            onClick={() => handlePlay()}
+                                            className="flex items-center gap-2 rounded bg-white px-4 sm:px-6 md:px-8 py-1.5 sm:py-2 text-sm sm:text-base font-bold text-black hover:bg-opacity-90"
+                                        >
+                                            <Play className="h-4 w-4 sm:h-5 sm:w-5 fill-black" /> Play
+                                        </button>
+                                    ) : (
+                                        <button
+                                            disabled
+                                            className="flex items-center gap-2 rounded bg-gray-600/70 px-4 sm:px-6 md:px-8 py-1.5 sm:py-2 text-sm sm:text-base font-bold text-white cursor-not-allowed"
+                                        >
+                                            <Clock className="h-4 w-4 sm:h-5 sm:w-5" /> Coming Soon
+                                        </button>
+                                    )
                                 )}
                             </div>
                         </div>
@@ -135,37 +144,66 @@ export default function MovieModal() {
 
                                     {seasonData?.episodes && seasonData.episodes.length > 0 ? (
                                         <div className="space-y-2 max-h-[300px] sm:max-h-[400px] overflow-y-auto pr-1 sm:pr-2">
-                                            {seasonData.episodes.map((episode: any) => (
-                                                <div
-                                                    key={episode.id}
-                                                    onClick={() => handlePlay(selectedSeason, episode.episode_number)}
-                                                    className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded cursor-pointer transition group"
-                                                >
-                                                    <div className="text-2xl sm:text-3xl font-bold text-gray-600 group-hover:text-white transition w-10 sm:w-12 flex-shrink-0">
-                                                        {episode.episode_number}
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex items-start justify-between mb-1 sm:mb-2">
-                                                            <h4 className="text-sm sm:text-base font-semibold text-white group-hover:text-gray-200 truncate">
-                                                                {episode.name}
-                                                            </h4>
-                                                            <span className="text-xs sm:text-sm text-gray-400 ml-2 flex-shrink-0">
-                                                                {episode.runtime ? `${episode.runtime}m` : ''}
-                                                            </span>
+                                            {seasonData.episodes.map((episode: any) => {
+                                                const isEpisodeReleased = isContentReleased(episode.air_date);
+                                                return (
+                                                    <div
+                                                        key={episode.id}
+                                                        onClick={() => isEpisodeReleased && handlePlay(selectedSeason, episode.episode_number)}
+                                                        className={`flex gap-3 sm:gap-4 p-3 sm:p-4 rounded transition group ${isEpisodeReleased
+                                                                ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a] cursor-pointer'
+                                                                : 'bg-[#1a1a1a] cursor-not-allowed opacity-60'
+                                                            }`}
+                                                    >
+                                                        <div className={`text-2xl sm:text-3xl font-bold transition w-10 sm:w-12 flex-shrink-0 ${isEpisodeReleased
+                                                                ? 'text-gray-600 group-hover:text-white'
+                                                                : 'text-gray-700'
+                                                            }`}>
+                                                            {episode.episode_number}
                                                         </div>
-                                                        <p className="text-xs sm:text-sm text-gray-400 line-clamp-2">
-                                                            {episode.overview || 'No description available.'}
-                                                        </p>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-start justify-between mb-1 sm:mb-2">
+                                                                <div className="flex items-center gap-2 flex-1">
+                                                                    <h4 className={`text-sm sm:text-base font-semibold truncate ${isEpisodeReleased
+                                                                            ? 'text-white group-hover:text-gray-200'
+                                                                            : 'text-gray-500'
+                                                                        }`}>
+                                                                        {episode.name}
+                                                                    </h4>
+                                                                    {!isEpisodeReleased && (
+                                                                        <span className="text-xs bg-orange-600 px-2 py-0.5 rounded flex-shrink-0">
+                                                                            Coming Soon
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <span className="text-xs sm:text-sm text-gray-400 ml-2 flex-shrink-0">
+                                                                    {episode.runtime ? `${episode.runtime}m` : ''}
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-xs sm:text-sm text-gray-400 line-clamp-2">
+                                                                {episode.overview || 'No description available.'}
+                                                            </p>
+                                                            {!isEpisodeReleased && episode.air_date && (
+                                                                <p className="text-xs text-gray-500 mt-1">
+                                                                    Airs on: {new Date(episode.air_date).toLocaleDateString('en-US', {
+                                                                        year: 'numeric',
+                                                                        month: 'short',
+                                                                        day: 'numeric'
+                                                                    })}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        {episode.still_path && (
+                                                            <img
+                                                                src={getImageUrl(episode.still_path, 'w500')}
+                                                                alt={episode.name}
+                                                                className={`w-24 h-16 sm:w-32 sm:h-20 object-cover rounded flex-shrink-0 ${!isEpisodeReleased ? 'opacity-50' : ''
+                                                                    }`}
+                                                            />
+                                                        )}
                                                     </div>
-                                                    {episode.still_path && (
-                                                        <img
-                                                            src={getImageUrl(episode.still_path, 'w500')}
-                                                            alt={episode.name}
-                                                            className="w-24 h-16 sm:w-32 sm:h-20 object-cover rounded flex-shrink-0"
-                                                        />
-                                                    )}
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     ) : (
                                         <div className="text-gray-400 text-center py-8 text-sm sm:text-base">

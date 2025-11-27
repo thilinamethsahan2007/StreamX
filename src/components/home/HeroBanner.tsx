@@ -1,8 +1,8 @@
 'use client';
 
 import { useTrendingMovies } from '@/hooks/useMovies';
-import { getImageUrl } from '@/lib/utils';
-import { Info, Play } from 'lucide-react';
+import { getImageUrl, isContentReleased } from '@/lib/utils';
+import { Info, Play, Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Movie } from 'tmdb-ts';
 import { useModalStore } from '@/store/modalStore';
@@ -46,13 +46,23 @@ export default function HeroBanner() {
                         {movie?.overview}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-2 md:gap-4">
-                        <button
-                            onClick={() => router.push(`/watch/movie/${movie.id}`)}
-                            className="flex items-center justify-center gap-2 px-6 md:px-8 py-2 md:py-3 bg-white text-black rounded font-bold hover:bg-white/90 transition text-sm md:text-base"
-                        >
-                            <Play className="h-5 w-5 md:h-6 md:w-6 fill-black" />
-                            Play
-                        </button>
+                        {isContentReleased(movie?.release_date) ? (
+                            <button
+                                onClick={() => router.push(`/watch/movie/${movie.id}`)}
+                                className="flex items-center justify-center gap-2 px-6 md:px-8 py-2 md:py-3 bg-white text-black rounded font-bold hover:bg-white/90 transition text-sm md:text-base"
+                            >
+                                <Play className="h-5 w-5 md:h-6 md:w-6 fill-black" />
+                                Play
+                            </button>
+                        ) : (
+                            <button
+                                disabled
+                                className="flex items-center justify-center gap-2 px-6 md:px-8 py-2 md:py-3 bg-gray-600/70 text-white rounded font-bold cursor-not-allowed text-sm md:text-base"
+                            >
+                                <Clock className="h-5 w-5 md:h-6 md:w-6" />
+                                Coming Soon
+                            </button>
+                        )}
                         <button
                             onClick={() => movie && openModal(movie)}
                             className="flex items-center justify-center gap-2 px-6 md:px-8 py-2 md:py-3 bg-gray-500/70 text-white rounded font-bold hover:bg-gray-500/50 transition text-sm md:text-base"

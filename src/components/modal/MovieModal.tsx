@@ -29,6 +29,18 @@ export default function MovieModal() {
         setIsMounted(true);
     }, []);
 
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen]);
+
     if (!isMounted || !movie) return null;
 
     const handlePlay = (season?: number, episode?: number) => {
@@ -54,7 +66,7 @@ export default function MovieModal() {
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.5 }}
-                        className="fixed inset-0 sm:inset-4 md:inset-8 lg:inset-auto lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 z-[100] lg:h-[90vh] w-full lg:max-w-5xl overflow-y-auto rounded-none sm:rounded-md bg-[#181818] text-white shadow-2xl"
+                        className="fixed inset-0 sm:inset-4 md:inset-8 lg:inset-auto lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 z-[100] lg:h-[90vh] w-full lg:max-w-5xl overflow-y-auto rounded-none sm:rounded-md bg-[#181818] text-white shadow-2xl scrollbar-hide"
                     >
                         <button
                             onClick={closeModal}
@@ -153,7 +165,7 @@ export default function MovieModal() {
                                     </div>
 
                                     {seasonData?.episodes && seasonData.episodes.length > 0 ? (
-                                        <div className="space-y-2 max-h-[300px] sm:max-h-[400px] overflow-y-auto pr-1 sm:pr-2">
+                                        <div className="space-y-2 pr-1 sm:pr-2">
                                             {seasonData.episodes.map((episode: any) => {
                                                 const isEpisodeReleased = isContentReleased(episode.air_date);
                                                 return (

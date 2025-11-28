@@ -79,9 +79,10 @@ export default function CustomPlayer({
     // Save progress periodically
     useEffect(() => {
         if (isPlaying && videoRef.current && type && title && poster) {
+            console.log('✅ Starting watch history tracking for:', title);
             saveIntervalRef.current = setInterval(() => {
                 if (videoRef.current) {
-                    addToHistory({
+                    const historyItem = {
                         id: parseInt(tmdbId),
                         type,
                         title,
@@ -92,14 +93,24 @@ export default function CustomPlayer({
                         season: season ? parseInt(season) : undefined,
                         episode: episode ? parseInt(episode) : undefined,
                         episodeTitle,
-                    });
+                    };
+                    console.log('💾 Saving progress:', historyItem);
+                    addToHistory(historyItem);
                 }
             }, 10000); // Save every 10 seconds
+        } else if (isPlaying) {
+            console.warn('⚠️ Cannot track history - missing:', {
+                type: !type,
+                title: !title,
+                poster: !poster,
+                videoRef: !videoRef.current
+            });
         }
 
         return () => {
             if (saveIntervalRef.current) {
                 clearInterval(saveIntervalRef.current);
+                console.log('🛑 Stopped watch history tracking');
             }
         };
     }, [isPlaying, tmdbId, type, title, poster, season, episode, episodeTitle, addToHistory]);
@@ -160,6 +171,37 @@ export default function CustomPlayer({
 
     // If no direct stream URL, use iframe fallback
     if (error || !streamUrl) {
+        // Track that user watched this (even without exact progress)
+        useEffect(() => {
+            if (type && title && poster) {
+                console.log('📺 Using iframe fallback for:', title);
+                // Add to history after 10 seconds (assume they're watching)
+                const timer = setTimeout(() => {
+                    console.log('💾 Saving iframe watch to history');
+                    addToHistory({
+                        id: parseInt(tmdbId),
+                        type,
+                        title,
+                        poster,
+                        timestamp: Date.now(),
+                        progress: 0, // Can't track exact progress in iframe
+                        duration: 1, // Placeholder to avoid >95% auto-removal
+                        season: season ? parseInt(season) : undefined,
+                        episode: episode ? parseInt(episode) : undefined,
+                        episodeTitle,
+                    });
+                }, 10000); // Wait 10 seconds to confirm they're watching
+
+                return () => clearTimeout(timer);
+            } else {
+                console.warn('⚠️ Cannot track iframe history - missing metadata:', {
+                    type: !type,
+                    title: !title,
+                    poster: !poster
+                });
+            }
+        }, [type, title, poster, tmdbId, season, episode, episodeTitle, addToHistory]);
+
         return (
             <div className="relative w-full h-full bg-black">
                 <iframe

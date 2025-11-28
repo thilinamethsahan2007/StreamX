@@ -18,7 +18,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
     const openModal = useModalStore((state) => state.openModal);
     const [imageError, setImageError] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const [coords, setCoords] = useState({ top: 0, left: 0, width: 0, height: 0 });
+    const [coords, setCoords] = useState({ top: 0, left: 0, width: 0, height: 0, origin: 'center center' });
     const cardRef = useRef<HTMLDivElement>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -37,11 +37,18 @@ export default function MovieCard({ movie }: MovieCardProps) {
         timeoutRef.current = setTimeout(() => {
             if (cardRef.current) {
                 const rect = cardRef.current.getBoundingClientRect();
+
+                // Calculate transform origin based on screen position
+                let originX = 'center';
+                if (rect.left < 100) originX = 'left';
+                else if (rect.right > window.innerWidth - 100) originX = 'right';
+
                 setCoords({
                     top: rect.top,
                     left: rect.left,
                     width: rect.width,
-                    height: rect.height
+                    height: rect.height,
+                    origin: `${originX} center`
                 });
                 setIsHovered(true);
             }
@@ -82,15 +89,15 @@ export default function MovieCard({ movie }: MovieCardProps) {
                     initial={{ opacity: 0, scale: 1 }}
                     animate={{ opacity: 1, scale: 1.5 }}
                     exit={{ opacity: 0, scale: 1 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
                     style={{
                         position: 'fixed',
                         top: coords.top,
                         left: coords.left,
                         width: coords.width,
-                        height: coords.height, // Start with same height, content expands below
+                        height: coords.height,
                         zIndex: 9999,
-                        transformOrigin: 'center center'
+                        transformOrigin: coords.origin
                     }}
                     className="bg-[#181818] rounded-md shadow-2xl cursor-pointer"
                     onMouseLeave={handleMouseLeave}
@@ -105,10 +112,18 @@ export default function MovieCard({ movie }: MovieCardProps) {
                         />
                         {/* Gradient Overlay */}
                         <div className="absolute inset-0 bg-gradient-to-t from-[#181818] via-transparent to-transparent" />
+
+                        {/* Title Overlay */}
+                        <div className="absolute bottom-2 left-2 right-2">
+                            {/* In a real app, we'd use a logo image here if available */}
+                            <h3 className="text-white font-bold text-xs sm:text-sm line-clamp-2 text-shadow-md">
+                                {title}
+                            </h3>
+                        </div>
                     </div>
 
                     {/* Info Section (Appended below) */}
-                    <div className="absolute top-full left-0 right-0 bg-[#181818] p-3 rounded-b-md shadow-xl -mt-1">
+                    <div className="absolute top-full left-0 right-0 bg-[#181818] p-3 rounded-b-md shadow-xl -mt-0.5">
                         {/* Action Buttons */}
                         <div className="flex items-center justify-between mb-3">
                             <div className="flex gap-2">
@@ -117,10 +132,10 @@ export default function MovieCard({ movie }: MovieCardProps) {
                                     title="Play"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        // Add play logic here if needed, or just let card click handle it
+                                        // Add play logic here if needed
                                     }}
                                 >
-                                    <Play className="h-4 w-4 fill-black text-black" />
+                                    <Play className="h-3 w-3 sm:h-4 sm:w-4 fill-black text-black" />
                                 </button>
                             </div>
 
@@ -132,12 +147,12 @@ export default function MovieCard({ movie }: MovieCardProps) {
                                     openModal(movie);
                                 }}
                             >
-                                <ChevronDown className="h-4 w-4 text-white" />
+                                <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                             </button>
                         </div>
 
                         {/* Metadata */}
-                        <div className="flex flex-wrap items-center gap-2 text-[10px] sm:text-xs font-semibold text-gray-300 mb-2">
+                        <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold text-gray-300 mb-2">
                             {movie.vote_average && movie.vote_average > 0 && (
                                 <span className="text-green-400 font-bold">
                                     {Math.round(movie.vote_average * 10)}% Match

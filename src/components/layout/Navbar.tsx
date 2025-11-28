@@ -24,7 +24,7 @@ export default function Navbar() {
             <nav
                 className={cn(
                     'fixed top-0 z-50 w-full px-4 py-3 md:px-16 md:py-4 transition-colors duration-300',
-                    isScrolled ? 'bg-[#141414]' : 'bg-gradient-to-b from-black/80 to-transparent'
+                    isScrolled ? 'bg-black/80 backdrop-blur-md' : 'bg-gradient-to-b from-black/80 to-transparent'
                 )}
             >
                 <div className="flex items-center justify-between">

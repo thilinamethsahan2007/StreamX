@@ -31,10 +31,6 @@ export default function ContinueWatchingRow({ title = "Continue Watching" }: Con
         removeFromHistory(item.id, item.type);
     };
 
-    const getProgressPercent = (item: WatchHistoryItem) => {
-        if (!item.duration) return 0;
-        return Math.min((item.progress / item.duration) * 100, 100);
-    };
 
     return (
         <div className="space-y-4 px-4 md:px-8">
@@ -59,13 +55,6 @@ export default function ContinueWatchingRow({ title = "Continue Watching" }: Con
                             className="h-full w-full object-cover"
                         />
 
-                        {/* Progress Bar */}
-                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-700">
-                            <div
-                                className="h-full bg-red-600"
-                                style={{ width: `${getProgressPercent(item)}%` }}
-                            />
-                        </div>
 
                         {/* Hover Overlay */}
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-3">
@@ -86,10 +75,6 @@ export default function ContinueWatchingRow({ title = "Continue Watching" }: Con
                                 </p>
                             )}
 
-                            {/* Progress Percentage */}
-                            <p className="text-gray-400 text-xs mt-1">
-                                {Math.round(getProgressPercent(item))}% watched
-                            </p>
 
                             {/* Remove Button */}
                             <button

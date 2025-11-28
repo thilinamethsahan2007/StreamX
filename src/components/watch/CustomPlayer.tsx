@@ -3,15 +3,30 @@
 import { useState, useEffect, useRef } from 'react';
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { useWatchHistory } from '@/hooks/useWatchHistory';
 
 interface CustomPlayerProps {
     tmdbId: string;
     season?: string;
     episode?: string;
     fallbackUrl: string;
+    // For watch history
+    title?: string;
+    poster?: string;
+    type?: 'movie' | 'tv';
+    episodeTitle?: string;
 }
 
-export default function CustomPlayer({ tmdbId, season, episode, fallbackUrl }: CustomPlayerProps) {
+export default function CustomPlayer({
+    tmdbId,
+    season,
+    episode,
+    fallbackUrl,
+    title,
+    poster,
+    type,
+    episodeTitle
+}: CustomPlayerProps) {
     const [streamUrl, setStreamUrl] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -21,6 +36,9 @@ export default function CustomPlayer({ tmdbId, season, episode, fallbackUrl }: C
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const saveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+    const { addToHistory, getProgress } = useWatchHistory();
 
     useEffect(() => {
         const fetchStream = async () => {
@@ -47,6 +65,44 @@ export default function CustomPlayer({ tmdbId, season, episode, fallbackUrl }: C
 
         fetchStream();
     }, [tmdbId, season, episode]);
+
+    // Resume from saved progress
+    useEffect(() => {
+        if (videoRef.current && type && title && poster) {
+            const savedProgress = getProgress(parseInt(tmdbId), type);
+            if (savedProgress && savedProgress.progress > 0) {
+                videoRef.current.currentTime = savedProgress.progress;
+            }
+        }
+    }, [streamUrl, tmdbId, type, title, poster, getProgress]);
+
+    // Save progress periodically
+    useEffect(() => {
+        if (isPlaying && videoRef.current && type && title && poster) {
+            saveIntervalRef.current = setInterval(() => {
+                if (videoRef.current) {
+                    addToHistory({
+                        id: parseInt(tmdbId),
+                        type,
+                        title,
+                        poster,
+                        timestamp: Date.now(),
+                        progress: videoRef.current.currentTime,
+                        duration: videoRef.current.duration || 0,
+                        season: season ? parseInt(season) : undefined,
+                        episode: episode ? parseInt(episode) : undefined,
+                        episodeTitle,
+                    });
+                }
+            }, 10000); // Save every 10 seconds
+        }
+
+        return () => {
+            if (saveIntervalRef.current) {
+                clearInterval(saveIntervalRef.current);
+            }
+        };
+    }, [isPlaying, tmdbId, type, title, poster, season, episode, episodeTitle, addToHistory]);
 
     const togglePlay = () => {
         if (videoRef.current) {

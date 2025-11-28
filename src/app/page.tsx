@@ -3,6 +3,7 @@
 import HeroBanner from '@/components/home/HeroBanner';
 import ContentRow from '@/components/home/ContentRow';
 import Top10Row from '@/components/home/Top10Row';
+import ContinueWatchingRow from '@/components/home/ContinueWatchingRow';
 import Navbar from '@/components/layout/Navbar';
 import MovieModal from '@/components/modal/MovieModal';
 import { useActionMovies, useComedyMovies, usePopularMovies, useTopRatedMovies, useTrendingMovies } from '@/hooks/useMovies';
@@ -20,6 +21,7 @@ export default function Home() {
       <HeroBanner />
 
       <div className="relative z-10 space-y-2 md:space-y-4 pb-12 md:pb-20 px-4 md:px-8">
+        <ContinueWatchingRow />
         <Top10Row title="Top 10 in StreamX Today" movies={trending || []} />
         <ContentRow title="Trending Now" movies={trending || []} isLoading={trendingLoading} error={trendingError as Error} />
         <ContentRow title="Popular on StreamX" movies={popular || []} isLoading={popularLoading} error={popularError as Error} />

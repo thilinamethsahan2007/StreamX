@@ -19,7 +19,7 @@ export default function Home() {
       <Navbar />
       <HeroBanner />
 
-      <div className="relative z-10 space-y-2 md:space-y-4 pb-12 md:pb-20 -mt-32">
+      <div className="relative z-10 space-y-2 md:space-y-4 pb-12 md:pb-20 px-4 md:px-8">
         <Top10Row title="Top 10 in StreamX Today" movies={trending || []} />
         <ContentRow title="Trending Now" movies={trending || []} isLoading={trendingLoading} error={trendingError as Error} />
         <ContentRow title="Popular on StreamX" movies={popular || []} isLoading={popularLoading} error={popularError as Error} />

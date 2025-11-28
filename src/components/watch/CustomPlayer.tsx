@@ -159,12 +159,10 @@ export default function CustomPlayer({
             console.log('Blocked popup event');
         };
 
-        window.addEventListener('beforeunload', blockPopup);
         window.addEventListener('open', blockPopup);
 
         return () => {
             window.open = originalWindowOpen;
-            window.removeEventListener('beforeunload', blockPopup);
             window.removeEventListener('open', blockPopup);
         };
     }, []);

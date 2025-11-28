@@ -124,6 +124,16 @@ export default function MovieModal() {
                                             {tvDetails.number_of_seasons}
                                         </div>
                                     )}
+                                    {/* Cast Section */}
+                                    <div>
+                                        <span className="text-gray-500">Cast: </span>
+                                        <span className="text-gray-300">
+                                            {details?.credits?.cast?.slice(0, 5).map(person => person.name).join(', ') || 'N/A'}
+                                        </span>
+                                        {details?.credits?.cast && details.credits.cast.length > 5 && (
+                                            <span className="text-gray-500 italic">, more</span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -151,13 +161,13 @@ export default function MovieModal() {
                                                         key={episode.id}
                                                         onClick={() => isEpisodeReleased && handlePlay(selectedSeason, episode.episode_number)}
                                                         className={`flex gap-3 sm:gap-4 p-3 sm:p-4 rounded transition group ${isEpisodeReleased
-                                                                ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a] cursor-pointer'
-                                                                : 'bg-[#1a1a1a] cursor-not-allowed opacity-60'
+                                                            ? 'bg-[#2a2a2a] hover:bg-[#3a3a3a] cursor-pointer'
+                                                            : 'bg-[#1a1a1a] cursor-not-allowed opacity-60'
                                                             }`}
                                                     >
                                                         <div className={`text-2xl sm:text-3xl font-bold transition w-10 sm:w-12 flex-shrink-0 ${isEpisodeReleased
-                                                                ? 'text-gray-600 group-hover:text-white'
-                                                                : 'text-gray-700'
+                                                            ? 'text-gray-600 group-hover:text-white'
+                                                            : 'text-gray-700'
                                                             }`}>
                                                             {episode.episode_number}
                                                         </div>
@@ -165,8 +175,8 @@ export default function MovieModal() {
                                                             <div className="flex items-start justify-between mb-1 sm:mb-2">
                                                                 <div className="flex items-center gap-2 flex-1">
                                                                     <h4 className={`text-sm sm:text-base font-semibold truncate ${isEpisodeReleased
-                                                                            ? 'text-white group-hover:text-gray-200'
-                                                                            : 'text-gray-500'
+                                                                        ? 'text-white group-hover:text-gray-200'
+                                                                        : 'text-gray-500'
                                                                         }`}>
                                                                         {episode.name}
                                                                     </h4>

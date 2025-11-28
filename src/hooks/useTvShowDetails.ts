@@ -6,8 +6,8 @@ export const useTvShowDetails = (id: number, enabled: boolean = true) => {
         queryKey: ['tvShow', id],
         queryFn: async () => {
             if (!id) return null;
-            // Use the same method as Zynema
-            const res = await tmdb.tvShows.details(id);
+            // Fetch details with credits, similar, and videos
+            const res = await tmdb.tvShows.details(id, ['credits', 'similar', 'videos']);
             return res;
         },
         enabled: enabled && !!id,

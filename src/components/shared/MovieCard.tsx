@@ -6,6 +6,7 @@ import { Movie } from 'tmdb-ts';
 import { motion } from 'framer-motion';
 import { Star, Play, Clock } from 'lucide-react';
 import { useState } from 'react';
+import Badge from './Badge';
 
 interface MovieCardProps {
     movie: Movie;
@@ -89,13 +90,24 @@ export default function MovieCard({ movie }: MovieCardProps) {
                 </div>
 
                 {/* Badges */}
-                <div className="flex items-center gap-1 mt-1">
+                <div className="flex flex-wrap gap-1 mt-1">
+                    {/* Recently Added Badge (mock logic: released in current year) */}
+                    {releaseDate && new Date(releaseDate).getFullYear() === new Date().getFullYear() && (
+                        <Badge variant="red">Recently Added</Badge>
+                    )}
+
+                    {/* New Season Badge (mock logic: for TV shows) */}
                     {isTV && (
-                        <span className="text-xs border border-gray-400 px-1 text-gray-300">TV</span>
+                        <Badge variant="red">New Season</Badge>
+                    )}
+
+                    {isTV && (
+                        <span className="text-[10px] border border-gray-400 px-1 text-gray-300 rounded">TV</span>
                     )}
                     {!isContentReleased(releaseDate) && (
-                        <span className="text-xs bg-orange-600 px-1.5 py-0.5 rounded">Coming Soon</span>
+                        <Badge variant="orange">Coming Soon</Badge>
                     )}
+                    <span className="text-[10px] border border-gray-400 px-1 text-gray-300 rounded">HD</span>
                 </div>
             </div>
         </motion.div>

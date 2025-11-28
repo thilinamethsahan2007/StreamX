@@ -102,8 +102,8 @@ export default function CustomPlayer({ tmdbId, season, episode, fallbackUrl }: C
         };
     }, []);
 
+    // If no direct stream URL, use iframe fallback
     if (error || !streamUrl) {
-        // Fallback to iframe if extraction fails
         return (
             <div className="relative w-full h-full bg-black">
                 <iframe
@@ -111,7 +111,6 @@ export default function CustomPlayer({ tmdbId, season, episode, fallbackUrl }: C
                     className="h-full w-full border-none"
                     allowFullScreen
                     allow="autoplay; encrypted-media"
-                    sandbox="allow-same-origin allow-scripts allow-forms"
                     title="Video Player"
                 />
             </div>

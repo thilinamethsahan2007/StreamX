@@ -4,11 +4,9 @@ import { getImageUrl, isContentReleased } from '@/lib/utils';
 import { useModalStore } from '@/store/modalStore';
 import { Movie } from 'tmdb-ts';
 import { motion } from 'framer-motion';
-import { Star, Play, Clock, ChevronDown } from 'lucide-react';
+import { Star, Play, Clock } from 'lucide-react';
 import { useState } from 'react';
 import Badge from './Badge';
-import { createPortal } from 'react-dom';
-import { useRef, useEffect } from 'react';
 
 interface MovieCardProps {
     movie: Movie;
@@ -17,10 +15,6 @@ interface MovieCardProps {
 export default function MovieCard({ movie }: MovieCardProps) {
     const openModal = useModalStore((state) => state.openModal);
     const [imageError, setImageError] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
-    const [coords, setCoords] = useState({ top: 0, left: 0, width: 0, height: 0, origin: 'center center' });
-    const cardRef = useRef<HTMLDivElement>(null);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Handle both movies and TV shows
     const isTV = !!(movie as any).name;
@@ -29,160 +23,93 @@ export default function MovieCard({ movie }: MovieCardProps) {
 
     const posterUrl = getImageUrl(movie.poster_path || movie.backdrop_path, 'w500');
 
-    // Mock genres
-    const genres = ["Drama", "Action", "Sci-Fi"];
-
-    const handleMouseEnter = () => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(() => {
-            if (cardRef.current) {
-                const rect = cardRef.current.getBoundingClientRect();
-
-                // Calculate transform origin based on screen position
-                let originX = 'center';
-                if (rect.left < 100) originX = 'left';
-                else if (rect.right > window.innerWidth - 100) originX = 'right';
-
-                setCoords({
-                    top: rect.top,
-                    left: rect.left,
-                    width: rect.width,
-                    height: rect.height,
-                    origin: `${originX} center`
-                });
-                setIsHovered(true);
-            }
-        }, 500); // 500ms delay like Netflix
-    };
-
-    const handleMouseLeave = () => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        setIsHovered(false);
-    };
-
     return (
-        <>
-            {/* Static Card (Placeholder) */}
-            <div
-                ref={cardRef}
-                className="relative aspect-[2/3] rounded-md overflow-hidden cursor-pointer bg-[#181818]"
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-            >
-                {!imageError ? (
-                    <img
-                        src={posterUrl}
-                        alt={title}
-                        onError={() => setImageError(true)}
-                        className="h-full w-full object-cover"
-                    />
-                ) : (
-                    <div className="h-full w-full bg-gray-800 flex items-center justify-center">
-                        <span className="text-gray-500 text-xs text-center px-2">{title}</span>
-                    </div>
-                )}
-            </div>
-
-            {/* Portal Hover Card */}
-            {isHovered && typeof document !== 'undefined' && createPortal(
-                <motion.div
-                    initial={{ opacity: 0, scale: 1 }}
-                    animate={{ opacity: 1, scale: 1.5 }}
-                    exit={{ opacity: 0, scale: 1 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                    style={{
-                        position: 'fixed',
-                        top: coords.top,
-                        left: coords.left,
-                        width: coords.width,
-                        height: coords.height,
-                        zIndex: 9999,
-                        transformOrigin: coords.origin
-                    }}
-                    className="bg-[#181818] rounded-md shadow-2xl cursor-pointer"
-                    onMouseLeave={handleMouseLeave}
-                    onClick={() => openModal(movie)}
-                >
-                    {/* Image Section */}
-                    <div className="relative w-full h-full rounded-t-md overflow-hidden">
-                        <img
-                            src={posterUrl}
-                            alt={title}
-                            className="w-full h-full object-cover"
-                        />
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#181818] via-transparent to-transparent" />
-
-                        {/* Title Overlay */}
-                        <div className="absolute bottom-2 left-2 right-2">
-                            {/* In a real app, we'd use a logo image here if available */}
-                            <h3 className="text-white font-bold text-xs sm:text-sm line-clamp-2 text-shadow-md">
-                                {title}
-                            </h3>
-                        </div>
-                    </div>
-
-                    {/* Info Section (Appended below) */}
-                    <div className="absolute top-full left-0 right-0 bg-[#181818] p-3 rounded-b-md shadow-xl -mt-0.5">
-                        {/* Action Buttons */}
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="flex gap-2">
-                                <button
-                                    className="bg-white rounded-full p-1.5 hover:bg-gray-200 transition flex items-center justify-center"
-                                    title="Play"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        // Add play logic here if needed
-                                    }}
-                                >
-                                    <Play className="h-3 w-3 sm:h-4 sm:w-4 fill-black text-black" />
-                                </button>
-                            </div>
-
-                            <button
-                                className="border-2 border-gray-500 rounded-full p-1.5 hover:border-white transition flex items-center justify-center bg-[#2a2a2a]/60"
-                                title="More Info"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    openModal(movie);
-                                }}
-                            >
-                                <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
-                            </button>
-                        </div>
-
-                        {/* Metadata */}
-                        <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold text-gray-300 mb-2">
-                            {movie.vote_average && movie.vote_average > 0 && (
-                                <span className="text-green-400 font-bold">
-                                    {Math.round(movie.vote_average * 10)}% Match
-                                </span>
-                            )}
-
-                            <span className="border border-gray-500 px-1 text-[10px] text-gray-400">
-                                {movie.adult ? '18+' : '13+'}
-                            </span>
-
-                            {releaseDate && (
-                                <span>{releaseDate.split('-')[0]}</span>
-                            )}
-
-                            <span className="border border-gray-500 px-1 text-[10px] text-gray-400 rounded-sm">HD</span>
-                        </div>
-
-                        {/* Genres */}
-                        <div className="flex flex-wrap gap-1.5">
-                            {genres.slice(0, 3).map((genre, i) => (
-                                <span key={i} className="text-[10px] text-white flex items-center">
-                                    {genre}
-                                    {i < 2 && <span className="text-gray-500 mx-1">•</span>}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                </motion.div>,
-                document.body
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            whileHover={{
+                scale: 1.3,
+                zIndex: 50,
+                transition: { duration: 0.3, delay: 0.3 }
+            }}
+            className="relative aspect-[2/3] cursor-pointer group rounded-md overflow-hidden"
+            onClick={() => openModal(movie)}
+            onKeyDown={(e) => e.key === 'Enter' && openModal(movie)}
+            tabIndex={0}
+            role="button"
+            aria-label={`View details for ${title}`}
+        >
+            {/* Movie Poster */}
+            {!imageError ? (
+                <img
+                    src={posterUrl}
+                    alt={title}
+                    onError={() => setImageError(true)}
+                    className="h-full w-full object-cover"
+                />
+            ) : (
+                <div className="h-full w-full bg-gray-800 flex items-center justify-center">
+                    <span className="text-gray-500 text-xs text-center px-2">{title}</span>
+                </div>
             )}
-        </>
+
+            {/* Gradient Overlay - Always visible on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+            {/* Content - Shows on hover */}
+            <div className="absolute inset-0 flex flex-col justify-end p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {/* Play Button */}
+                <div className="flex items-center gap-2 mb-2">
+                    {isContentReleased(releaseDate) ? (
+                        <button className="bg-white rounded-full p-2 hover:bg-gray-200 transition">
+                            <Play className="h-4 w-4 fill-black text-black" />
+                        </button>
+                    ) : (
+                        <button className="bg-gray-600/80 rounded-full p-2">
+                            <Clock className="h-4 w-4 text-white" />
+                        </button>
+                    )}
+                </div>
+
+                {/* Title and Info */}
+                <h3 className="text-white font-bold text-sm line-clamp-1 mb-1">
+                    {title}
+                </h3>
+
+                <div className="flex items-center gap-2 text-xs text-white">
+                    {movie.vote_average && movie.vote_average > 0 && (
+                        <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-green-500 text-green-500" />
+                            <span className="text-green-500 font-semibold">{Math.round(movie.vote_average * 10)}% Match</span>
+                        </div>
+                    )}
+                    {releaseDate && (
+                        <span className="text-gray-300">{releaseDate.split('-')[0]}</span>
+                    )}
+                </div>
+
+                {/* Badges */}
+                <div className="flex flex-wrap gap-1 mt-1">
+                    {/* Recently Added Badge (mock logic: released in current year) */}
+                    {releaseDate && new Date(releaseDate).getFullYear() === new Date().getFullYear() && (
+                        <Badge variant="red">Recently Added</Badge>
+                    )}
+
+                    {/* New Season Badge (mock logic: for TV shows) */}
+                    {isTV && (
+                        <Badge variant="red">New Season</Badge>
+                    )}
+
+                    {isTV && (
+                        <span className="text-[10px] border border-gray-400 px-1 text-gray-300 rounded">TV</span>
+                    )}
+                    {!isContentReleased(releaseDate) && (
+                        <Badge variant="orange">Coming Soon</Badge>
+                    )}
+                    <span className="text-[10px] border border-gray-400 px-1 text-gray-300 rounded">HD</span>
+                </div>
+            </div>
+        </motion.div>
     );
 }

@@ -1,0 +1,143 @@
+'use client';
+
+import { useMovieDetails } from '@/hooks/useMovies';
+import { useTvShowDetails, useTvShowSeason } from '@/hooks/useTvShowDetails';
+import { getImageUrl } from '@/lib/utils';
+import { useModalStore } from '@/store/modalStore';
+import { X, Play } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+export default function MovieModal() {
+    const { isOpen, movie, closeModal } = useModalStore();
+    const router = useRouter();
+    const [isMounted, setIsMounted] = useState(false);
+    const [selectedSeason, setSelectedSeason] = useState(1);
+
+    // Determine if it's a TV show by checking for 'name' property
+    const isTV = !!(movie as any)?.name;
+    const title = isTV ? (movie as any)?.name : movie?.title;
+    const releaseDate = isTV ? (movie as any)?.first_air_date : movie?.release_date;
+
+    // Call ALL hooks unconditionally
+    const { data: movieDetails } = useMovieDetails(movie?.id || 0);
+    const { data: tvDetails } = useTvShowDetails(movie?.id || 0, isTV);
+    const { data: seasonData } = useTvShowSeason(movie?.id || 0, selectedSeason, isTV);
+
+    const details = isTV ? tvDetails : movieDetails;
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted || !movie) return null;
+
+    const handlePlay = (season?: number, episode?: number) => {
+        closeModal();
+        if (isTV && season && episode) {
+            router.push(`/watch/tv/${movie?.id}?season=${season}&episode=${episode}`);
+        } else if (isTV) {
+            router.push(`/watch/tv/${movie?.id}?season=1&episode=1`);
+        } else {
+            router.push(`/watch/movie/${movie?.id}`);
+        }
+    };
+
+    return (
+        <AnimatePresence>
+            {isOpen && (
+
+                <div className="absolute bottom-10 left-10">
+                    <h2 className="mb-4 text-4xl font-bold text-shadow">{title}</h2>
+                    {!isTV && (
+                                    <div className="flex gap-4">
+                                        <button
+                                            onClick={() => handlePlay()}
+                                            className="flex items-center gap-2 rounded bg-white px-8 py-2 font-bold text-black hover:bg-opacity-90"
+                                        >
+                                            <Play className="fill-black" /> Play
+                                        {movie.original_language?.toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Vote Average: </span>
+                                        {movie.vote_average?.toFixed(1)}
+                                    </div>
+                                    {isTV && tvDetails?.number_of_seasons && (
+                        <div>
+                            <span className="text-gray-500">Seasons: </span>
+                            {tvDetails.number_of_seasons}
+                        </div>
+                    )}
+                </div>
+                            </div>
+
+                            {/* TV Show Episodes */ }
+    {
+        isTV && tvDetails?.number_of_seasons && (
+            <div>
+                <div className="flex items-center gap-4 mb-6">
+                    <h3 className="text-2xl font-bold">Episodes</h3>
+                    <select
+                        value={selectedSeason}
+                        onChange={(e) => setSelectedSeason(Number(e.target.value))}
+                        className="bg-[#2a2a2a] text-white px-4 py-2 rounded border border-gray-600 cursor-pointer hover:bg-[#3a3a3a]"
+                    >
+                        {Array.from({ length: tvDetails.number_of_seasons }, (_, i) => i + 1).map(season => (
+                            <option key={season} value={season}>
+                                Season {season}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {seasonData?.episodes && seasonData.episodes.length > 0 ? (
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                        {seasonData.episodes.map((episode: any) => (
+                            <div
+                                key={episode.id}
+                                onClick={() => handlePlay(selectedSeason, episode.episode_number)}
+                                className="flex gap-4 p-4 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded cursor-pointer transition group"
+                            >
+                                <div className="text-3xl font-bold text-gray-600 group-hover:text-white transition w-12 flex-shrink-0">
+                                    {episode.episode_number}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <h4 className="font-semibold text-white group-hover:text-gray-200 truncate">
+                                            {episode.name}
+                                        </h4>
+                                        <span className="text-sm text-gray-400 ml-2 flex-shrink-0">
+                                            {episode.runtime ? `${episode.runtime}m` : ''}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm text-gray-400 line-clamp-2">
+                                        {episode.overview || 'No description available.'}
+                                    </p>
+                                </div>
+                                {episode.still_path && (
+                                    <img
+                                        src={getImageUrl(episode.still_path, 'w500')}
+                                        alt={episode.name}
+                                        className="w-32 h-20 object-cover rounded flex-shrink-0"
+                                    />
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-gray-400 text-center py-8">
+                        {seasonData ? 'No episodes available for this season.' : 'Loading episodes...'}
+                    </div>
+                )}
+            </div>
+        )
+    }
+                        </div >
+                    </motion.div >
+                </>
+            )
+}
+        </AnimatePresence >
+    );
+}
